@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useAppStore } from '@/lib/store';
-import { simulator } from '@/lib/simulator';
+import { simulator, WaveEvent } from '@/lib/simulator';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 
@@ -40,13 +40,13 @@ export default function TransmitPage() {
     }
 
     // Generate wave
-    const wave = {
+    const wave: WaveEvent = {
       id: `wave-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       userId: publicKey?.toBase58() || walletInput || 'anonymous',
       userName: publicKey ? `User${publicKey.toBase58().slice(0, 4)}` : 'Anonymous',
       userAvatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${publicKey?.toBase58() || walletInput || 'anon'}`,
       tweetHash: Math.random().toString(16).substr(2, 6).toUpperCase(),
-      status: 'sent' as const,
+      status: 'sent',
       timestamp: Date.now(),
       createdAt: Date.now(),
     };
@@ -60,17 +60,20 @@ export default function TransmitPage() {
 
     // Transition to transmission
     setTimeout(() => {
-      wave.status = 'transmission';
-      updateWave(wave);
+      const updatedWave: WaveEvent = { ...wave, status: 'transmission' };
+      updateWave(updatedWave);
     }, 1500);
 
     // Transition to resonated
     setTimeout(() => {
-      wave.status = 'resonated';
-      wave.reward = Math.random() * 0.04 + 0.01;
-      updateWave(wave);
+      const updatedWave: WaveEvent = {
+        ...wave,
+        status: 'resonated',
+        reward: Math.random() * 0.04 + 0.01,
+      };
+      updateWave(updatedWave);
       if (publicKey || walletInput) {
-        updateBalance(wave.reward);
+        updateBalance(updatedWave.reward!);
         incrementSignalsDelivered();
       }
     }, 4000);

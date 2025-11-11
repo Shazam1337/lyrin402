@@ -8,6 +8,13 @@ const nextConfig = {
       net: false,
       tls: false,
     };
+    
+    // Ignore optional dependencies that cause build issues
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'pino-pretty': false,
+    };
+    
     return config;
   },
 }
